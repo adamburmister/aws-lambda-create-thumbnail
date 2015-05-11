@@ -1,14 +1,21 @@
 // dependencies
-var async     = require('async')
-    , AWS     = require('aws-sdk')
-    , gm      = require('gm').subClass({ imageMagick: true }) // Enable ImageMagick integration.
-    , util    = require('util')
-    , request = require('request')
-    , config  = require('config');
+var async   = require('async');
+var AWS     = require('aws-sdk');
+var gm      = require('gm').subClass({ imageMagick: true }); // Enable ImageMagick integration.
+var util    = require('util');
+var request = require('request');
+var config  = require('config');
 
 // constants
-var MAX_WIDTH  = 100
-  , MAX_HEIGHT = 100;
+var THUMB_WIDTH  = config.thumbnailWidth;
+var THUMB_HEIGHT = config.thumbnailHeight;
+var ALLOWED_FILETYPES = ['png', 'jpg', 'jpeg', 'bmp', 'tiff', 'pdf', 'gif'];
+
+var utils = {
+  decodeKey: function(key) {
+    return decodeURIComponent(key).replace(/\+/g, ' ');
+  }
+};
 
 // get reference to S3 client 
 var s3 = new AWS.S3();
@@ -17,8 +24,8 @@ exports.handler = function(event, context) {
   // Read options from the event.
   console.log("Reading options from event:\n", util.inspect(event, {depth: 5}));
   var srcBucket = event.Records[0].s3.bucket.name;
-  var srcKey    = event.Records[0].s3.object.key;
-  var dstBucket = srcBucket + "-thumbnails";
+  var srcKey    = utils.decodeKey(event.Records[0].s3.object.key),
+  var dstBucket = srcBucket + "/thumbnails";
   var dstKey    = "thumb-" + srcKey;
 
   // Sanity check: validate that source and destination are different buckets.
@@ -54,8 +61,8 @@ exports.handler = function(event, context) {
       gm(response.Body).size(function(err, size) {
         // Infer the scaling factor to avoid stretching the image unnaturally.
         var scalingFactor = Math.min(
-          MAX_WIDTH / size.width,
-          MAX_HEIGHT / size.height
+          THUMB_WIDTH / size.width,
+          THUMB_HEIGHT / size.height
         );
         var width  = scalingFactor * size.width;
         var height = scalingFactor * size.height;
@@ -102,15 +109,17 @@ exports.handler = function(event, context) {
         } else {
           var fileId = fileMatch[1];
 
-          request.post(config.home.host + '/api/files/' + fileId + '/thumbnail', {
-            form : {
-              bucket : config.home.bucket,
-              secret : config.home.secret
-            }
-          }, function(err, response, body) {
-            err && console.log('could not make request back: ' + err);
-            context.done();
-          });
+          console.log('fileId = ' + fileId);
+
+          // request.post(config.home.host + '/api/files/' + fileId + '/thumbnail', {
+          //   form : {
+          //     bucket : config.home.bucket,
+          //     secret : config.home.secret
+          //   }
+          // }, function(err, response, body) {
+          //   err && console.log('could not make request back: ' + err);
+          //   context.done();
+          // });
         }
       }
     }

@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/trinketapp/aws-lambda-create-thumbnail.git"
+    "url": "https://github.com/adamburmister/aws-lambda-create-thumbnail.git"
   },
   "keywords": [
     "AWS",
@@ -18,13 +18,22 @@
   "author": "brianpmarks",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/trinketapp/aws-lambda-create-thumbnail/issues"
+    "url": "https://github.com/adamburmister/aws-lambda-create-thumbnail/issues"
   },
-  "homepage": "https://github.com/trinketapp/aws-lambda-create-thumbnail",
+  "homepage": "https://github.com/adamburmister/aws-lambda-create-thumbnail",
+  "devDependencies": {
+    "aws-sdk": "^2.1.24",
+    "del": "^1.1.1",
+    "gulp": "^3.8.11",
+    "gulp-install": "^0.4.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-util": "^3.0.4",
+    "gulp-zip": "^3.0.2",
+    "run-sequence": "^1.0.2"
+  },
   "dependencies": {
     "async": "^0.9.0",
-    "aws-sdk": "^2.1.21",
-    "config": "^1.12.0",
+    "config": "^1.13.0",
     "gm": "^1.17.0",
     "q": "^1.2.0",
     "request": "^2.55.0"

@@ -1,7 +1,0 @@
-{
-  "home": {
-    "host"   : "http://trinket.dev",
-    "bucket" : "userassets",
-    "secret" : "superlambdasecret"
-  }
-}
