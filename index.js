@@ -24,8 +24,8 @@ exports.handler = function(event, context) {
   // Read options from the event.
   console.log("Reading options from event:\n", util.inspect(event, {depth: 5}));
   var srcBucket = event.Records[0].s3.bucket.name;
-  var srcKey    = utils.decodeKey(event.Records[0].s3.object.key),
-  var dstBucket = srcBucket + "/thumbnails";
+  var srcKey    = utils.decodeKey(event.Records[0].s3.object.key);
+  var dstBucket = srcBucket + "/thumbnails/";
   var dstKey    = "thumb-" + srcKey;
 
   // Sanity check: validate that source and destination are different buckets.
@@ -41,9 +41,8 @@ exports.handler = function(event, context) {
     return;
   }
 
-  var validImageTypes = ['png', 'jpg', 'jpeg', 'gif'];
   var imageType = typeMatch[1];
-  if (validImageTypes.indexOf(imageType.toLowerCase()) < 0) {
+  if (ALLOWED_FILETYPES.indexOf(imageType.toLowerCase()) < 0) {
     console.log('skipping non-image ' + srcKey);
     return;
   }
@@ -67,10 +66,13 @@ exports.handler = function(event, context) {
         var width  = scalingFactor * size.width;
         var height = scalingFactor * size.height;
 
+        console.log('Resizing, size:' + size.width + ':' + size.height + ' length:' + response.Body.length);
+
         // Transform the image buffer in memory.
         this.resize(width, height)
-          .toBuffer(imageType, function(err, buffer) {
+          .toBuffer(function(err, buffer) {
             if (err) {
+              console.error('Error resizing image: ' + err);
               next(err);
             } else {
               next(null, response.ContentType, buffer);
